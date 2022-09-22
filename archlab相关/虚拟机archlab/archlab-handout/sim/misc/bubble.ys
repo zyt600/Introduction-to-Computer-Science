@@ -1,0 +1,79 @@
+# Execution begins at address 0 
+#周雨童
+#2000013192
+	.pos 0
+	irmovq stack, %rsp  	# Set up stack pointer
+	call main		# Execute main program
+	halt			# Terminate program 
+	
+
+.align 8
+Array:
+        .quad 0xbca
+        .quad 0xcba
+        .quad 0xacb
+        .quad 0xcab
+        .quad 0xabc
+        .quad 0xbac
+
+
+
+bubble_sort:#从小到大升序排列
+rrmovq %rsi,%r8
+irmovq $8,%r9
+addq %r8,%r8
+addq %r8,%r8
+addq %r8,%r8#r8左移三位/乘8
+
+addq %rdi,%r8
+loop1:
+    subq %r9,%r8#r8装的是last
+    rrmovq %r8,%r10
+    subq %rdi,%r10
+    je out_finish
+    rrmovq %rdi,%r11
+    subq %r9,%r11
+    loop2:
+        addq %r9,%r11#r11装的是i
+        rrmovq %r11,%r12
+        subq %r8,%r12
+        je inner_finish
+        mrmovq (%r11),%r13
+        mrmovq 8(%r11),%r14
+        rrmovq %r14,%rbp
+        subq %r13,%rbp
+        jge loop2
+        rmmovq %r14,(%r11)
+        rmmovq %r13,8(%r11)
+        jmp loop2
+    inner_finish:
+    jmp loop1
+    out_finish:
+    ret    
+
+
+
+
+
+
+
+main:
+irmovq Array,%rdi
+irmovq $6,%rsi
+call bubble_sort
+
+#mrmovq (%rdi),%rax
+#mrmovq 8(%rdi),%rbx
+#mrmovq 16(%rdi),%rcx
+#mrmovq 24(%rdi),%r8
+#mrmovq 32(%rdi),%r9
+#mrmovq 40(%rdi),%r10
+
+ret
+
+	.pos 0x200
+stack:
+
+
+
+

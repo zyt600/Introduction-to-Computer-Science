@@ -1,0 +1,161 @@
+                            | #######################################################################
+                            | # Test for copying block of size 4;
+                            | #######################################################################
+0x000:                      | 	.pos 0
+0x000: 30f41003000000000000 | main:	irmovq Stack, %rsp  	# Set up stack pointer
+                            | 
+                            | 	# Set up arguments for copy function and then invoke it
+0x00a: 30f20400000000000000 | 	irmovq $4, %rdx		# src and dst have 4 elements
+0x014: 30f66802000000000000 | 	irmovq dest, %rsi	# dst array
+0x01e: 30f73802000000000000 | 	irmovq src, %rdi	# src array
+0x028: 803200000000000000   | 	call ncopy		 
+0x031: 00                   | 	halt			# should halt with num nonzeros in %rax
+0x032:                      | StartFun:
+                            | #/* $begin ncopy-ys */
+                            | ##################################################################
+                            | # ncopy.ys - Copy a src block of len words to dst.
+                            | # Return the number of positive words (>0) contained in src.
+                            | #
+                            | # Include your name and ID here.
+                            | #2000013192
+                            | #周雨童
+                            | # Describe how and why you modified the baseline code.
+                            | #普普通通的六路循环展开
+                            | ##################################################################
+                            | # Do not modify this portion
+                            | # Function prologue.
+                            | # %rdi = src, %rsi = dst, %rdx = len
+0x032:                      | ncopy:
+                            | 
+                            | ##################################################################
+                            | # You can modify this portion
+                            | 	# Loop header
+                            | 	#xorq %rax,%rax		# count = 0;
+0x032: c0f2faffffffffffffff | 	iaddq $-6,%rdx#如果小于6，就一重循环
+0x03c: 726201000000000000   | 	jl leftlength		
+0x045:                      | Loop:	
+0x045: 50870000000000000000 | 	mrmovq (%rdi), %r8	#否则就六重循环；其中，这里把mrmovq和rmmovq隔开，避免loaduse的等待
+0x04f: 50970800000000000000 | 	mrmovq 8(%rdi), %r9
+0x059: 50a71000000000000000 | 	mrmovq 16(%rdi), %r10
+0x063: 50b71800000000000000 | 	mrmovq 24(%rdi), %r11
+0x06d: 50c72000000000000000 | 	mrmovq 32(%rdi), %r12
+0x077: 50d72800000000000000 | 	mrmovq 40(%rdi), %r13
+0x081: 40860000000000000000 | 	rmmovq %r8, (%rsi)	
+0x08b: 40960800000000000000 | 	rmmovq %r9, 8(%rsi)
+0x095: 40a61000000000000000 | 	rmmovq %r10, 16(%rsi)
+0x09f: 40b61800000000000000 | 	rmmovq %r11, 24(%rsi)
+0x0a9: 40c62000000000000000 | 	rmmovq %r12, 32(%rsi)
+0x0b3: 40d62800000000000000 | 	rmmovq %r13, 40(%rsi)
+0x0bd:                      | hhh0:
+0x0bd: 6288                 | 	andq %r8, %r8
+0x0bf: 71d200000000000000   | 	jle hhh1
+0x0c8: c0f00100000000000000 | 	iaddq $1,%rax
+0x0d2:                      | hhh1:
+0x0d2: 6299                 | 	andq %r9, %r9		
+0x0d4: 71e700000000000000   | 	jle hhh2		
+0x0dd: c0f00100000000000000 | 	iaddq $1,%rax
+0x0e7:                      | hhh2:
+0x0e7: 62aa                 | 	andq %r10, %r10
+0x0e9: 71fc00000000000000   | 	jle hhh3
+0x0f2: c0f00100000000000000 | 	iaddq $1,%rax
+0x0fc:                      | hhh3:
+0x0fc: 62bb                 | 	andq %r11, %r11
+0x0fe: 711101000000000000   | 	jle hhh4
+0x107: c0f00100000000000000 | 	iaddq $1,%rax
+0x111:                      | hhh4:
+0x111: 62cc                 | 	andq %r12, %r12
+0x113: 712601000000000000   | 	jle hhh5
+0x11c: c0f00100000000000000 | 	iaddq $1,%rax
+0x126:                      | hhh5:
+0x126: 62dd                 | 	andq %r13, %r13
+0x128: 713b01000000000000   | 	jle Npos
+0x131: c0f00100000000000000 | 	iaddq $1,%rax
+0x13b:                      | Npos:	
+0x13b: c0f73000000000000000 | 	iaddq $48,%rdi
+0x145: c0f63000000000000000 | 	iaddq $48,%rsi
+0x14f: c0f2faffffffffffffff | 	iaddq $-6,%rdx	
+0x159: 754500000000000000   | 	jge Loop			
+0x162:                      | leftlength:#余数处理
+0x162: c0f20500000000000000 | 	iaddq $5,%rdx#之前减过6，现在加5，如果小于，说明余数是0；等于，余数是1，大于，余数大于等于2
+0x16c: 723202000000000000   | 	jl Done
+0x175: 730902000000000000   |     je last1
+0x17e:                      | ll:
+0x17e: 50870000000000000000 | 	mrmovq (%rdi), %r8
+0x188: 50970800000000000000 |     mrmovq 8(%rdi), %r9
+0x192: 40860000000000000000 | 	rmmovq %r8, (%rsi)
+0x19c: 40960800000000000000 |     rmmovq %r9, 8(%rsi)
+0x1a6: 6288                 |     andq %r8, %r8
+0x1a8: 71bb01000000000000   | 	jle next
+0x1b1: c0f00100000000000000 | 	iaddq $1,%rax
+0x1bb:                      | next:
+0x1bb: 6299                 |     andq %r9, %r9
+0x1bd: 71d001000000000000   |     jle aaa
+0x1c6: c0f00100000000000000 |     iaddq $1,%rax
+0x1d0:                      | aaa:
+0x1d0: c0f2feffffffffffffff |     iaddq $-2, %rdx
+0x1da: 723202000000000000   |     jl Done
+0x1e3: 730902000000000000   |     je last1
+                            |     
+0x1ec: c0f71000000000000000 | 	iaddq $16,%rdi
+0x1f6: c0f61000000000000000 | 	iaddq $16,%rsi
+0x200: 707e01000000000000   |     jmp ll
+                            | 
+0x209:                      | last1:
+0x209: 50870000000000000000 |     mrmovq (%rdi),%r8
+0x213: 6288                 |     andq %r8,%r8
+0x215: 40860000000000000000 |     rmmovq %r8,(%rsi)
+0x21f: 713202000000000000   |     jle Done
+0x228: c0f00100000000000000 |     iaddq $1,%rax
+                            | ##################################################################
+                            | # Do not modify the following section of code
+                            | # Function epilogue.
+0x232:                      | Done:
+0x232: 90                   | 	ret
+                            | ##################################################################
+                            | # Keep the following label at the end of your function
+0x233:                      | End:
+                            | #/* $end ncopy-ys */
+0x233:                      | EndFun:
+                            | 
+                            | ###############################
+                            | # Source and destination blocks 
+                            | ###############################
+0x238:                      | 	.align 8
+0x238:                      | src:
+0x238: 0100000000000000     | 	.quad 1
+0x240: 0200000000000000     | 	.quad 2
+0x248: fdffffffffffffff     | 	.quad -3
+0x250: fcffffffffffffff     | 	.quad -4
+0x258: fadebc0000000000     | 	.quad 0xbcdefa # This shouldn't get moved
+                            | 
+0x260:                      | 	.align 16
+0x260:                      | Predest:
+0x260: fadebc0000000000     | 	.quad 0xbcdefa
+0x268:                      | dest:
+0x268: abefcd0000000000     | 	.quad 0xcdefab
+0x270: abefcd0000000000     | 	.quad 0xcdefab
+0x278: abefcd0000000000     | 	.quad 0xcdefab
+0x280: abefcd0000000000     | 	.quad 0xcdefab
+0x288:                      | Postdest:
+0x288: bcfade0000000000     | 	.quad 0xdefabc
+                            | 
+0x290:                      | .align 8
+                            | # Run time stack
+0x290: 0000000000000000     | 	.quad 0
+0x298: 0000000000000000     | 	.quad 0
+0x2a0: 0000000000000000     | 	.quad 0
+0x2a8: 0000000000000000     | 	.quad 0
+0x2b0: 0000000000000000     | 	.quad 0
+0x2b8: 0000000000000000     | 	.quad 0
+0x2c0: 0000000000000000     | 	.quad 0
+0x2c8: 0000000000000000     | 	.quad 0
+0x2d0: 0000000000000000     | 	.quad 0
+0x2d8: 0000000000000000     | 	.quad 0
+0x2e0: 0000000000000000     | 	.quad 0
+0x2e8: 0000000000000000     | 	.quad 0
+0x2f0: 0000000000000000     | 	.quad 0
+0x2f8: 0000000000000000     | 	.quad 0
+0x300: 0000000000000000     | 	.quad 0
+0x308: 0000000000000000     | 	.quad 0
+                            | 
+0x310:                      | Stack:

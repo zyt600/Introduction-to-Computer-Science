@@ -1,0 +1,161 @@
+#######################################################################
+# Test for copying block of size 4;
+#######################################################################
+	.pos 0
+main:	irmovq Stack, %rsp  	# Set up stack pointer
+
+	# Set up arguments for copy function and then invoke it
+	irmovq $4, %rdx		# src and dst have 4 elements
+	irmovq dest, %rsi	# dst array
+	irmovq src, %rdi	# src array
+	call ncopy		 
+	halt			# should halt with num nonzeros in %rax
+StartFun:
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+#2000013192
+#周雨童
+# Describe how and why you modified the baseline code.
+#普普通通的六路循环展开
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+	# Loop header
+	#xorq %rax,%rax		# count = 0;
+	iaddq $-6,%rdx#如果小于6，就一重循环
+	jl leftlength		
+Loop:	
+	mrmovq (%rdi), %r8	#否则就六重循环；其中，这里把mrmovq和rmmovq隔开，避免loaduse的等待
+	mrmovq 8(%rdi), %r9
+	mrmovq 16(%rdi), %r10
+	mrmovq 24(%rdi), %r11
+	mrmovq 32(%rdi), %r12
+	mrmovq 40(%rdi), %r13
+	rmmovq %r8, (%rsi)	
+	rmmovq %r9, 8(%rsi)
+	rmmovq %r10, 16(%rsi)
+	rmmovq %r11, 24(%rsi)
+	rmmovq %r12, 32(%rsi)
+	rmmovq %r13, 40(%rsi)
+hhh0:
+	andq %r8, %r8
+	jle hhh1
+	iaddq $1,%rax
+hhh1:
+	andq %r9, %r9		
+	jle hhh2		
+	iaddq $1,%rax
+hhh2:
+	andq %r10, %r10
+	jle hhh3
+	iaddq $1,%rax
+hhh3:
+	andq %r11, %r11
+	jle hhh4
+	iaddq $1,%rax
+hhh4:
+	andq %r12, %r12
+	jle hhh5
+	iaddq $1,%rax
+hhh5:
+	andq %r13, %r13
+	jle Npos
+	iaddq $1,%rax
+Npos:	
+	iaddq $48,%rdi
+	iaddq $48,%rsi
+	iaddq $-6,%rdx	
+	jge Loop			
+leftlength:#余数处理
+	iaddq $5,%rdx#之前减过6，现在加5，如果小于，说明余数是0；等于，余数是1，大于，余数大于等于2
+	jl Done
+    je last1
+ll:
+	mrmovq (%rdi), %r8
+    mrmovq 8(%rdi), %r9
+	rmmovq %r8, (%rsi)
+    rmmovq %r9, 8(%rsi)
+    andq %r8, %r8
+	jle next
+	iaddq $1,%rax
+next:
+    andq %r9, %r9
+    jle aaa
+    iaddq $1,%rax
+aaa:
+    iaddq $-2, %rdx
+    jl Done
+    je last1
+    
+	iaddq $16,%rdi
+	iaddq $16,%rsi
+    jmp ll
+
+last1:
+    mrmovq (%rdi),%r8
+    andq %r8,%r8
+    rmmovq %r8,(%rsi)
+    jle Done
+    iaddq $1,%rax
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */
+EndFun:
+
+###############################
+# Source and destination blocks 
+###############################
+	.align 8
+src:
+	.quad 1
+	.quad 2
+	.quad -3
+	.quad -4
+	.quad 0xbcdefa # This shouldn't get moved
+
+	.align 16
+Predest:
+	.quad 0xbcdefa
+dest:
+	.quad 0xcdefab
+	.quad 0xcdefab
+	.quad 0xcdefab
+	.quad 0xcdefab
+Postdest:
+	.quad 0xdefabc
+
+.align 8
+# Run time stack
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+	.quad 0
+
+Stack:

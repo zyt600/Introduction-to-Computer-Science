@@ -1,0 +1,54 @@
+# Execution begins at address 0 
+#周雨童
+#2000013192
+	.pos 0
+	irmovq stack, %rsp  	# Set up stack pointer
+	call main		# Execute main program
+	halt			# Terminate program 
+	
+
+# Sample linked list
+.align 8
+ele1:
+.quad 0x00a
+.quad ele2
+ele2:
+.quad 0x0b0
+.quad ele3
+ele3:
+.quad 0xc00
+.quad 0
+
+
+rsum_list:
+xorq %rax,%rax
+mrmovq (%rdi),%rdx
+pushq %rdx
+mrmovq 8(%rdi),%rdi
+andq %rdi,%rdi
+je finish
+
+call rsum_list
+
+finish:
+popq %rdx
+addq %rdx,%rax
+ret
+
+
+
+
+
+main:
+irmovq ele1,%rdi
+call rsum_list
+ret
+
+
+
+
+
+
+	.pos 0x200
+stack:
+

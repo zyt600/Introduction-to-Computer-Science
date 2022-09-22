@@ -1,0 +1,91 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+#2000013192
+#周雨童
+#
+# Describe how and why you modified the baseline code.
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+	# Loop header
+	#xorq %rax,%rax		# count = 0;
+	iaddq $-6,%rdx
+	jl leftlength		# if so, goto Done:
+	
+Loop:	
+	iaddq $7,%rdx
+	mrmovq (%rdi), %r8	# read val from src...
+	mrmovq 8(%rdi), %r9
+	mrmovq 16(%rdi), %r10
+	mrmovq 24(%rdi), %r11
+	mrmovq 32(%rdi), %r12
+	mrmovq 40(%rdi), %r13
+	rmmovq %r8, (%rsi)	# ...and store it to dst
+	rmmovq %r9, 8(%rsi)
+	rmmovq %r10, 16(%rsi)
+	rmmovq %r11, 24(%rsi)
+	rmmovq %r12, 32(%rsi)
+	rmmovq %r13, 40(%rsi)
+hhh0:
+	andq %r8, %r8
+	jle hhh1
+	iaddq $1,%rax
+hhh1:
+	andq %r9, %r9		
+	jle hhh2		
+	iaddq $1,%rax
+hhh2:
+	andq %r10, %r10
+	jle hhh3
+	iaddq $1,%rax
+hhh3:
+	andq %r11, %r11
+	jle hhh4
+	iaddq $1,%rax
+hhh4:
+	andq %r12, %r12
+	jle hhh5
+	iaddq $1,%rax
+hhh5:
+	andq %r13, %r13
+	jle Npos
+	iaddq $1,%rax
+Npos:	
+	iaddq $48,%rdi
+	iaddq $48,%rsi
+	iaddq $-12,%rdx	
+	jge Loop			
+leftlength:
+	iaddq $6,%rdx
+	andq %rdx,%rdx
+	jle Done
+ll:
+	mrmovq (%rdi), %r8
+	andq %r8, %r8
+	rmmovq %r8, (%rsi)
+	jle aaa
+	iaddq $1,%rax
+aaa:
+	iaddq $8,%rdi
+	iaddq $8,%rsi
+	iaddq $-1, %rdx
+	jg ll
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */
