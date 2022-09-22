@@ -1,0 +1,202 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+#2000013192
+#周雨童
+#也可以整合andq代码们，但同样的，也会多执行
+# Describe how and why you modified the baseline code.
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+	# Loop header
+loopstart:
+	iaddq $-3,%rdx
+mid:
+	jl left012		
+    iaddq $-11,%rdx
+    jl left345678910111213
+    irmovq $6667,%rbp
+    jmp left14
+left14ormore:
+    iaddq $112,%rdi
+    iaddq $112,%rsi
+    #iaddq $-1,%rdx
+        iaddq $-4,%rdx
+        jmp mid
+    jmp loopstart
+left012:#11
+    iaddq $2,%rdx
+	jl Done#2
+    je last1#8
+    jg last2#15
+left34567:
+    iaddq $3,%rdx
+    jl left34
+    jg left67
+    jmp left5
+left34:
+    iaddq $1,%rdx
+    je left4
+    jmp left3
+left67:
+    iaddq $-1,%rdx
+    je left6
+    jmp left7
+left910111213:
+    iaddq $-3,%rdx
+    jl left910
+    jg left1213
+    jmp left11
+left910:
+    iaddq $1,%rdx
+    je left10
+    jmp left9
+left1213:
+    iaddq $-1,%rdx
+    je left12
+    jmp left13
+left345678910111213:
+    iaddq $6,%rdx
+    jl left34567
+    jg left910111213
+    jmp left8
+
+left14:
+    mrmovq 104(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,104(%rsi)
+    jle left13
+    iaddq $1,%rax
+left13:
+    mrmovq 96(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,96(%rsi)
+    jle left12
+    iaddq $1,%rax
+left12:
+    mrmovq 88(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,88(%rsi)
+    jle left11
+    iaddq $1,%rax
+left11:
+    mrmovq 80(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,80(%rsi)
+    jle left10
+    iaddq $1,%rax
+left10:
+    mrmovq 72(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,72(%rsi)
+    jle left9
+    iaddq $1,%rax
+
+left9:
+    mrmovq 64(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,64(%rsi)
+    jle left8
+    iaddq $1,%rax
+
+left8:
+    mrmovq 56(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,56(%rsi)
+    jle left7
+    iaddq $1,%rax
+
+left7:
+    mrmovq 48(%rdi),%r14
+    andq %r14,%r14
+    rmmovq %r14,48(%rsi)   
+    jle left6
+    iaddq $1,%rax
+
+left6:
+    mrmovq 40(%rdi),%r13
+    andq %r13,%r13
+    rmmovq %r13,40(%rsi)
+    jle left5
+    iaddq $1,%rax
+    
+left5:
+    mrmovq 32(%rdi),%r12
+    andq %r12,%r12
+    rmmovq %r12,32(%rsi)
+    jle left4
+    iaddq $1,%rax
+
+left4:
+    mrmovq 24(%rdi),%r11
+    andq %r11,%r11
+    rmmovq %r11,24(%rsi)
+    jle left3
+    iaddq $1,%rax
+
+left3:
+    mrmovq 16(%rdi),%r10
+    andq %r10,%r10
+    rmmovq %r10,16(%rsi)
+    jle left2
+    iaddq $1,%rax
+left2:
+    mrmovq 8(%rdi),%r9
+    andq %r9,%r9
+    rmmovq %r9,8(%rsi)
+    jle left1
+    iaddq $1,%rax
+left1:
+    mrmovq (%rdi),%r8
+    andq %r8,%r8
+    rmmovq %r8,(%rsi)
+    jle then
+    iaddq $1,%rax
+then:
+    iaddq $-6667,%rbp
+    je left14ormore
+    jmp Done
+
+
+
+
+
+
+
+
+
+
+
+
+
+last2:
+    mrmovq 8(%rdi),%r9
+    andq %r9,%r9
+    rmmovq %r9,8(%rsi)
+    jle last1
+    iaddq $1,%rax
+last1:
+    mrmovq (%rdi),%r8
+    andq %r8,%r8
+    rmmovq %r8,(%rsi)
+    jle Done
+    iaddq $1,%rax
+
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */
